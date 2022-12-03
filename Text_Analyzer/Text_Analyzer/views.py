@@ -9,55 +9,64 @@ def index(request):
 
 def analyze(request):
     receivedText = request.GET.get('textarea', 'default')
-    removepunc = request.GET.get('cbRemovepunc','off')
-    fullcaps = request.GET.get('cbFullcaps','off')
-    extraspaceremover = request.GET.get('cbExtraspacerem','off')
-    newlineremover = request.GET.get('cbNewlinerem','off')
-    charcount = request.GET.get('cbCharcount','off')
+    cbremovepunc = request.GET.get('cbRemovepunc','off')
+    cbfullcaps = request.GET.get('cbFullcaps','off')
+    cbextraspaceremover = request.GET.get('cbExtraspacerem','off')
+    cbnewlineremover = request.GET.get('cbNewlinerem','off')
+    cbcharcount = request.GET.get('cbCharcount','off')
 
-    punctuations = '''!"#$%&'()*+,-./:;<=>?@[\]^_`{|}~'''
-    analysed = ""
-
-    if removepunc == "on":
-        for i in receivedText:
+    def removepunc(str1):
+        punctuations = '''!"#$%&'()*+,-./:;<=>?@[\]^_`{|}~'''
+        updated_str = ''
+        for i in str1:
             if i not in punctuations:
-                analysed += i
-                print(analysed)
-        params = {'purpose': "Removed Punctuations", 'analyzed_text': analysed}
+                updated_str += i
+        return updated_str
 
-        return render(request, 'removepunc.html', params)
+    def fullcaps(str1):
+        updated_str = ''
+        updated_str = str1.upper()
+        return updated_str
 
-
-    elif fullcaps == "on":
-        analysed = receivedText.upper()
-        params = {'purpose': "UPPERCASE", 'analyzed_text': analysed}
-
-        return render(request, 'fullcaps.html', params)
-
-    elif extraspaceremover == 'on':
-        for i in range(0,len(receivedText)):
-            if (receivedText[i]==" ") and (receivedText[i+1]==" "):
+    def extraspaceremover(str1):
+        updated_str = ""
+        for i in range(0,len(str1)):
+            if (str1[i]==" ") and (str1[i+1]==" "):
                 pass
             else:
-                analysed += receivedText[i]
-        params = {'purpose': "Removed Extra Space", 'analyzed_text': analysed}
+                updated_str += str1[i]
+        return updated_str
 
-        return render(request, 'extraspace.html', params)
+    def newlineremover(str1):
+        updated_str = ""
+        for i in str1:
+            if i != "\n":
+                updated_str = updated_str + i
+        return updated_str
 
-    elif newlineremover == 'on':
-        for i in receivedText:
-            if i != '\n':
-                analysed += i
-        params = {'purpose': "Removed New Lines", 'analyzed_text': analysed}
+    def charcount(str1):
+        total_char = len(str1)
+        return total_char
 
-        return render(request, 'newlineremover.html', params)
+    analysed = receivedText
+    total_char = 0
 
-    elif charcount == 'on':
-        total_char = len(receivedText)
-        params = {'purpose': "Character Count", 'analyzed_text': total_char}
-        return render(request, 'charcount.html', params)
+    options = [cbcharcount,cbremovepunc,cbfullcaps,cbextraspaceremover,cbnewlineremover]
+    if options[0] == 'on':
+        total_char = charcount(analysed)
+    if options[1] == 'on':
+        analysed = removepunc(analysed)
+    if options[2] == 'on':
+        analysed = fullcaps(analysed)
+    if options[3] == 'on':
+        analysed = extraspaceremover(analysed)
+    if options[4] == 'on':
+        analysed = newlineremover(analysed)
 
-    else:
-        return HttpResponse('Error')
+    print(analysed)
+    params = {'analyzed_text' : analysed}
+    return render(request, 'results.html', params)
+
+
 
 
